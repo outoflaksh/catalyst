@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from pandas import read_excel, read_csv, DataFrame
 
 
-def generate_creation_query(schema: dict, table_name: str, pk_col: str):
+def _generate_creation_query(schema: dict, table_name: str, pk_col: str):
     conversion_scheme = {"int64": "BIGINT", "object": "TEXT", "float64": "NUMERIC"}
 
     creation_query = []
@@ -21,7 +21,7 @@ def generate_creation_query(schema: dict, table_name: str, pk_col: str):
     return creation_query
 
 
-def generate_insertion_queries(dataframe: DataFrame, schema: dict, table_name: str):
+def _generate_insertion_queries(dataframe: DataFrame, schema: dict, table_name: str):
     insertion_queries = []
 
     for i in range(len(dataframe)):
@@ -46,14 +46,14 @@ def excel_to_sql(sql_uri: str, excel_file_path: str, table_name: str, pk: str = 
     excel_schema = dict(df.dtypes)
     excel_schema = {i: str(excel_schema[i]) for i in excel_schema}
 
-    creation_query = generate_creation_query(
+    creation_query = _generate_creation_query(
         schema=excel_schema, table_name=table_name, pk_col=pk
     )
 
     conn = engine.connect()
     conn.execute(creation_query)
 
-    insertion_queries = generate_insertion_queries(df, excel_schema, table_name)
+    insertion_queries = _generate_insertion_queries(df, excel_schema, table_name)
 
     for insertion_query in insertion_queries:
         try:
@@ -72,14 +72,14 @@ def csv_to_sql(sql_uri: str, csv_file_path: str, table_name: str, pk: str = None
     csv_schema = dict(df.dtypes)
     csv_schema = {i: str(csv_schema[i]) for i in csv_schema}
 
-    creation_query = generate_creation_query(
+    creation_query = _generate_creation_query(
         schema=csv_schema, table_name=table_name, pk_col=pk
     )
 
     conn = engine.connect()
     conn.execute(creation_query)
 
-    insertion_queries = generate_insertion_queries(df, csv_schema, table_name)
+    insertion_queries = _generate_insertion_queries(df, csv_schema, table_name)
 
     for insertion_query in insertion_queries:
         try:
